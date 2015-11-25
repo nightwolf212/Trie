@@ -10,6 +10,7 @@ import java.util.ArrayList;
 /////////////////////////////////////////////////////////////////
 // Calculating number of different substrings of string with dummy trie (O(N*N)).  
 // Tested on http://codeforces.com/gym/100181/ problem C.
+// for string with size 5000 characters it works for about 9500 ms
 //////////////////////////////////////////////////////
 
 public class Main {
