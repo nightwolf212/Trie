@@ -10,12 +10,13 @@ import java.util.ArrayList;
 /////////////////////////////////////////////////////////////////
 // Calculating number of different substrings of string with dummy trie (O(N*N)).  
 // Tested on http://codeforces.com/gym/100181/ problem C.
-// for string with size 5000 characters it works for about 9500 ms
+// with suffix link time of executing is about 11000ms
 //////////////////////////////////////////////////////
 
 public class Main {
 
 	static int states=0;
+	static boolean end=false;
 	private static class Node //Node of trie
 	{
 		private ArrayList<Edge> edges;
@@ -23,7 +24,7 @@ public class Main {
 		public Node()
 		{
 			edges=new ArrayList<Edge>();
-			//suffLink=new Node();
+			suffLink=null;
 		}
 		public void setSuffLink(Node to)
 		{
@@ -35,6 +36,7 @@ public class Main {
 			{											   // return node, which corresponding this edge
 				if(i.getLetter()==e)
 				{
+					end=true;
 					return i.getNode();
 				}
 			
@@ -45,9 +47,14 @@ public class Main {
 			edges.add(new Edge(e,newNode));
 			return newNode;										
 		}
+		
 		public ArrayList<Edge> getEdges()
 		{
 			return this.edges;
+		}
+		public Node getNodeBySuffixLink()
+		{
+			return this.suffLink;
 		}
 		
 	}
@@ -81,21 +88,43 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		BufferedReader bf=new BufferedReader(new FileReader("unequal.in"));
-		PrintWriter pw=new PrintWriter("unequal.out");
+		//BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
+		//PrintWriter pw=new PrintWriter("unequal.out");
+		PrintWriter pw=new PrintWriter(System.out);
+		
 		//System.out.println("Enter string");
+		
 		String str=bf.readLine();
+		long tm=System.currentTimeMillis();
+		Node dummy=new Node();
 		Node mainNode=new Node();
+		for(int i=0; i<26; i++)
+		{
+			Edge e=new Edge((char)(i+'a'),mainNode);
+			dummy.getEdges().add(e);
+		}
+		mainNode.setSuffLink(dummy);
 		ArrayList<Node> leafNodes=new ArrayList<Node>();
+		Node deepest=mainNode;
 		for(int i=0; i<str.length(); i++)
 		{
-			leafNodes.add(mainNode);
-			ArrayList<Node> newWave=new ArrayList<Node>();
-			for(Node curNode:leafNodes)
-				newWave.add(curNode.addEdgeWithLetter(str.charAt(i)));
-			leafNodes=newWave;
+			end=false;
+			Node cn=deepest;
+			deepest=deepest.addEdgeWithLetter(str.charAt(i));
+		
+			Node prevLeaf=deepest;
+			while(!end)
+			{
+				
+				cn=cn.getNodeBySuffixLink();
+				Node newNode=cn.addEdgeWithLetter(str.charAt(i));
+				prevLeaf.setSuffLink(newNode);
+				prevLeaf=newNode;
+				
+			}
 		}
-//		System.out.println("maybe done");
 		pw.println(states);
+		pw.print(System.currentTimeMillis()-tm);
 		pw.close();
 	}
 
